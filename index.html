@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기본 사칙연산 계산기</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f4f4f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .calculator {
+    width: 320px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+    box-sizing: border-box;
+  }
+  .display {
+    width: 100%;
+    height: 60px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 28px;
+    text-align: right;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    color: #333;
+  }
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  button {
+    height: 60px;
+    font-size: 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #f1f3f5;
+    color: #495057;
+    transition: background-color 0.1s ease;
+  }
+  button:hover {
+    background-color: #e2e6ea;
+  }
+  button:active {
+    background-color: #ced4da;
+  }
+  .operator {
+    background-color: #e7f5ff;
+    color: #1971c2;
+    font-weight: bold;
+  }
+  .operator:hover {
+    background-color: #d0ebff;
+  }
+  .clear {
+    grid-column: span 2;
+    background-color: #ffe3e3;
+    color: #e03131;
+    font-weight: bold;
+  }
+  .clear:hover {
+    background-color: #ffc9c9;
+  }
+  .equals {
+    grid-column: span 2;
+    background-color: #20c997;
+    color: white;
+    font-weight: bold;
+  }
+  .equals:hover {
+    background-color: #12b886;
+  }
+</style>
+</head>
+<body>
+
+<div class="calculator">
+  <input type="text" class="display" id="display" disabled value="0">
+  <div class="buttons">
+    <button class="clear" onclick="clearDisplay()">C</button>
+    <button class="operator" onclick="appendOperator('/')">/</button>
+    <button class="operator" onclick="appendOperator('*')">*</button>
+    
+    <button onclick="appendNumber('7')">7</button>
+    <button onclick="appendNumber('8')">8</button>
+    <button onclick="appendNumber('9')">9</button>
+    <button class="operator" onclick="appendOperator('-')">-</button>
+    
+    <button onclick="appendNumber('4')">4</button>
+    <button onclick="appendNumber('5')">5</button>
+    <button onclick="appendNumber('6')">6</button>
+    <button class="operator" onclick="appendOperator('+')">+</button>
+    
+    <button onclick="appendNumber('1')">1</button>
+    <button onclick="appendNumber('2')">2</button>
+    <button onclick="appendNumber('3')">3</button>
+    <button onclick="appendNumber('.')">.</button>
+    
+    <button onclick="appendNumber('0')">0</button>
+    <button class="equals" onclick="calculate()">=</button>
+  </div>
+</div>
+
+<script>
+  const display = document.getElementById('display');
+  let currentExpression = '';
+
+  // 숫자 및 소수점 입력 처리
+  function appendNumber(number) {
+    if (currentExpression === '0' && number !== '.') {
+      currentExpression = number;
+    } else {
+      currentExpression += number;
+    }
+    updateDisplay();
+  }
+
+  // 사칙연산자 입력 처리
+  function appendOperator(operator) {
+    if (currentExpression === '') return;
+    
+    // 마지막 입력이 연산자인 경우 새로운 연산자로 교체
+    const lastChar = currentExpression.slice(-1);
+    if (['+', '-', '*', '/'].includes(lastChar)) {
+      currentExpression = currentExpression.slice(0, -1) + operator;
+    } else {
+      currentExpression += operator;
+    }
+    updateDisplay();
+  }
+
+  // 화면 및 수식 초기화
+  function clearDisplay() {
+    currentExpression = '';
+    display.value = '0';
+  }
+
+  // 수식 계산
+  function calculate() {
+    if (currentExpression === '') return;
+    
+    try {
+      // Function 생성자를 사용하여 문자열 수식을 안전하게 계산
+      const result = new Function('return ' + currentExpression)();
+      
+      // 결과값이 무한대이거나 숫자가 아닌 경우 처리
+      if (!isFinite(result) || isNaN(result)) {
+        throw new Error('Invalid calculation');
+      }
+      
+      // 소수점 10자리까지만 표현하여 부동소수점 오류 방지
+      currentExpression = String(Math.round(result * 10000000000) / 10000000000);
+      updateDisplay();
+    } catch (error) {
+      display.value = 'Error';
+      currentExpression = '';
+    }
+  }
+
+  // 디스플레이 업데이트
+  function updateDisplay() {
+    display.value = currentExpression || '0';
+  }
+</script>
+
+</body>
+</html>
